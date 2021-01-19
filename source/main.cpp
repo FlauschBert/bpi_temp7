@@ -20,6 +20,8 @@ using namespace max7219;
 
 namespace {
 
+int readoutDelay = 2000 /*ms*/;
+
 bool sStop = false;
 
 size_t constexpr maxDataSize = 15;
@@ -123,6 +125,9 @@ int main ()
 	);
 	setupMax7219 (led, 1/*brightness 1..15*/);
 
+	// Wait 2 seconds before first readout
+	delay (readoutDelay /*ms*/);
+
 	while (!sStop)
 	{
 		auto const data = getDHT11Data ();
@@ -135,7 +140,7 @@ int main ()
 				showData (led, lastValid, datas, true /*dots*/);
 
 			std::cerr << "Parity invalid. Read again.\n";
-			delay (2000 /*ms*/);
+			delay (readoutDelay /*ms*/);
 			continue;
 		}
 
@@ -148,7 +153,7 @@ int main ()
 		// show
 		showData (led, data, datas);
 
-		delay (2000 /*ms*/);
+		delay (readoutDelay /*ms*/);
 	}
 
   led.clearDisplay(0);
