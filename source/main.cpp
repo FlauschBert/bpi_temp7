@@ -20,7 +20,7 @@ using namespace max7219;
 
 namespace {
 
-int readoutDelay = 2000 /*ms*/;
+int readoutDelay = 1000;
 
 bool sStop = false;
 
@@ -88,7 +88,8 @@ dht11::Data getDHT11Data ()
 	// Trigger sending data on serial line
 	dht11::sendStartSignal (pin);
 	// Wait for data of client
-	dht11::waitForResponseSignal (pin);
+	if (!dht11::waitForResponseSignal (pin))
+		return {};
 	// Read and evaluate data from client
 	return dht11::getDataFromBits (pin);
 }
@@ -125,11 +126,11 @@ int main ()
 	);
 	setupMax7219 (led, 1/*brightness 1..15*/);
 
-	// Wait 2 seconds before first readout
-	delay (readoutDelay /*ms*/);
-
 	while (!sStop)
 	{
+		// Wait 2 seconds before first and consecutive readouts
+		delay (2000 /*ms*/);
+
 		auto const data = getDHT11Data ();
 
 		// Consider parity bit check
@@ -140,7 +141,6 @@ int main ()
 				showData (led, lastValid, datas, true /*dots*/);
 
 			std::cerr << "Parity invalid. Read again.\n";
-			delay (readoutDelay /*ms*/);
 			continue;
 		}
 
@@ -152,8 +152,6 @@ int main ()
 
 		// show
 		showData (led, data, datas);
-
-		delay (readoutDelay /*ms*/);
 	}
 
   led.clearDisplay(0);
