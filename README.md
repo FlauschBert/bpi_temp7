@@ -1,27 +1,22 @@
-# MAX7219 on the Banana Pi
+# Temperature and humidity on 7-segment-leds on the Banana Pi
 
-7-segment-leds on the MAX7219 on the Banana Pi or Raspberry Pi (not tested).
+Show sensor data of DHT11 sensor on 8 7-segment-leds with MAX7219 driver and the Banana PI (which also should work on a Raspberry Pi).
 
-# Motivation
-
-Show arbitrary numbers and lettes on the 7-segment-display.
-
-# Compile and install wiringBP library and tools
+# Compile and install dependencies
 
 Clone the [repository](https://github.com/LeMaker/WiringBP) and run `./build`.  
-This installs includes and library in */usr/local/include* and */usr/local/lib*. Binaries in the */usr/local/bin* folder.
+See #References for further dependencies.  
 
 # Compile and install
 
 Go to the *source* directory and use the mighty force of shining CMake :D to compile the pico project.  
-The *wiringPi* sub folder contains the internal interface library for the installed wiringBP library.  
-Do `make install` to install the library in */usr/local*.
+The *wiringPi*, *dht11* and *max7219* sub folders contain internal interface libraries for the installed libraries in the */usr/local* folders.  
+Do `make install` to install the binary in */usr/local/bin*.
 
 (I used Armbian stretch but also more recent versions should work).
 
 # References
 
-* [Banana Pi LED test](https://github.com/FlauschBert/bpi_led_test/blob/master/README.md) for initial setup
-* [Documentation of MAX7219](https://datasheets.maximintegrated.com/en/ds/MAX7219-MAX7221.pdf)
-* [LedControl on GitHub](https://github.com/wayoda/LedControl)
+* [Banana Pi DHT11](https://github.com/FlauschBert/bpi_dht11/blob/master/README.md)
+* [Banana Pi MAX7219](https://github.com/FlauschBert/bpi_max7219/blob/master/README.md)
 
