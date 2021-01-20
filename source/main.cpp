@@ -2,9 +2,12 @@
 #include <iostream>
 #include <iomanip>
 #include <deque>
+#include <cstring>
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <atomic>
+#include <sys/signal.h>
 
 // wiringPi interface library
 #include <wiringPi.h>
@@ -20,9 +23,26 @@ using namespace max7219;
 
 namespace {
 
-int readoutDelay = 1000;
+std::atomic<bool> sStop (false);
 
-bool sStop = false;
+void tschuessCallback (int)
+{
+	sStop = true;
+}
+
+int activateTschuessCallback ()
+{
+	struct sigaction action;
+	memset (&action, 0, sizeof (action));
+
+	action.sa_handler = tschuessCallback;
+	if (0 > sigaction (SIGHUP, &action, nullptr))
+		return -1;
+	if (0 > sigaction (SIGINT, &action, nullptr))
+		return -1;
+
+	return 0;
+}
 
 size_t constexpr maxDataSize = 15;
 using Datas = std::deque<dht11::Data>;
@@ -111,6 +131,13 @@ void setupMax7219 (MAX7219& led, uint8_t intensity)
 
 int main ()
 {
+	// Register callback for save shutdown
+	if (0 > activateTschuessCallback ())
+	{
+		std::cerr << "Could not register shutdown callback.\n";
+		return -1;
+	}
+
 	// Does also wiringPiSetup () for us
 	if (-1 == dht11::setup ())
 	{
