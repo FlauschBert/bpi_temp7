@@ -47,7 +47,6 @@ int activateTschuessCallback ()
 size_t constexpr maxDataSize = 15;
 using Datas = std::deque<dht11::Data>;
 Datas datas;
-dht11::Data lastValid;
 
 bool isEmpty (dht11::Data const& data)
 {
@@ -155,30 +154,27 @@ int main ()
 
 	while (!sStop)
 	{
-		// Wait 2 seconds before first and consecutive readouts
-		delay (2000 /*ms*/);
-
-		auto const data = getDHT11Data ();
-
-		// Consider parity bit check
-		if (isEmpty (data))
+		// Read next data until valid
+		dht11::Data data;
+		while (isEmpty (data))
 		{
-			// Show last valid state with dots
-			if (!isEmpty (lastValid))
-				showData (led, lastValid, datas, true /*dots*/);
+			// Wait 2 seconds before first and consecutive readouts
+			delay (2000 /*ms*/);
+			data = getDHT11Data ();
 
-			std::cerr << "Parity invalid. Read again.\n";
-			continue;
+			if (sStop)
+				break;
 		}
 
 		// collect data for gradient
 		datas.push_back (data);
 		if (datas.size () > maxDataSize)
 			datas.pop_front ();
-		lastValid = data;
 
 		// show
-		showData (led, data, datas);
+		showData (led, data, datas, true /*dots*/);
+		delay (250 /*ms*/);
+		showData (led, data, datas, false /*no dots*/);
 	}
 
   led.clearDisplay(0);
