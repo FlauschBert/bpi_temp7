@@ -1,0 +1,76 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          bpi_temp7
+# Required-Start:    $syslog
+# Required-Stop:     $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: DHT11 and MAX7219 on the banana pi
+# Description:       Show sensor data on 7-segment leds
+### END INIT INFO
+# -*- coding: utf-8 -*-
+# Debian init.d script for bpi_temp7
+# Copyright © 2020 FlauschBert <FlauschBert@github.com>
+
+set -e
+
+DAEMON=/usr/local/bin/bpi_temp7
+PIDDIR=/var/run/bpi_temp7
+PIDFILE=$PIDDIR/pid
+DESC="Sensor data on 7-segment leds"
+
+test -x $DAEMON || exit 0
+
+. /lib/lsb/init-functions
+
+start_it_up()
+{
+  if [ ! -d $PIDDIR ]; then
+    mkdir -p $PIDDIR
+    chown $DAEMONUSER $PIDDIR
+    chgrp $DAEMONUSER $PIDDIR
+  fi
+
+  if [ -e $PIDFILE ]; then
+    if $0 status > /dev/null ; then
+      log_success_msg "$DESC already started; not starting."
+      return
+    else
+      log_success_msg "Removing stale PID file $PIDFILE."
+      rm -f $PIDFILE
+    fi
+  fi
+
+  log_daemon_msg "Starting $DESC" "$NAME"
+  start-stop-daemon --start --pidfile $PIDFILE --quiet --make-pidfile --exec $DAEMON --background 
+  log_end_msg $?
+}
+
+shut_it_down()
+{
+  log_daemon_msg "Stopping $DESC" "$NAME"
+  start-stop-daemon --stop --signal SIGHUP --quiet --oknodo --pidfile $PIDFILE \
+    --user $DAEMONUSER --remove-pidfile
+  log_end_msg $?
+}
+
+case "$1" in
+  start)
+    start_it_up
+  ;;
+  stop)
+    shut_it_down
+  ;;
+  restart)
+    shut_it_down
+    start_it_up
+  ;;
+  status)
+    status_of_proc -p $PIDFILE $DAEMON $NAME && exit 0 || exit $?
+    ;;
+  *)
+    echo "Usage: /etc/init.d/$NAME {start|stop|restart|status}" >&2
+    exit 2
+  ;;
+esac
+

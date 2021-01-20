@@ -1,0 +1,11 @@
+[Unit]
+Description=Show sensor data on 7-segment leds
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+ExecStart=/usr/local/bin/bpi_temp7
+
+[Install]
+WantedBy=multi-user.target

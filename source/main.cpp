@@ -36,7 +36,7 @@ int activateTschuessCallback ()
 	memset (&action, 0, sizeof (action));
 
 	action.sa_handler = tschuessCallback;
-	if (0 > sigaction (SIGHUP, &action, nullptr))
+	if (0 > sigaction (SIGTERM, &action, nullptr))
 		return -1;
 	if (0 > sigaction (SIGINT, &action, nullptr))
 		return -1;
