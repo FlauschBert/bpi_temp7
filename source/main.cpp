@@ -44,32 +44,27 @@ int activateTschuessCallback ()
 	return 0;
 }
 
-size_t constexpr maxDataSize = 15;
-using Datas = std::deque<dht11::Data>;
-Datas datas;
-
 bool isEmpty (dht11::Data const& data)
 {
-	return data.humidity == -1 && data.temperature == -1;
+	return data.humidity == -1.f && data.temperature == -1.f;
 }
 
-std::string getStringFrom (int value)
+std::string getStringFrom (float const value)
 {
-	std::stringstream sstream;
-	sstream << std::setw (2) << std::setfill ('0');
-	sstream << std::max (0, value);
-	return sstream.str ();
+	char tmp [5];
+	sprintf (tmp, "%2.1f", std::max (0.0f, value));
+	return tmp;
 }
 
-void showData (MAX7219& led, dht11::Data const& current, Datas const& data, bool dots = false)
+void showData (MAX7219& led, dht11::Data const& current, bool dots)
 {
 	auto const temperature = getStringFrom (current.temperature);
-	if (2 == temperature.size ())
+	if (4 == temperature.size ())
 	{
 		led.setDigit (0, 7, toDigit (temperature [0]));
 		led.setDigit (0, 6, toDigit (temperature [1], dots));
-		led.setDigit (0, 5, toDigit ('g'));
-		led.setDigit (0, 4, 0x0);
+		led.setDigit (0, 5, toDigit (temperature [3]));
+		led.setDigit (0, 4, toDigit ('g'));
 	}
 	else
 	{
@@ -80,12 +75,12 @@ void showData (MAX7219& led, dht11::Data const& current, Datas const& data, bool
 	}
 
 	auto const humidity = getStringFrom (current.humidity);
-	if (2 == humidity.size ())
+	if (4 == humidity.size ())
 	{
 		led.setDigit (0, 3, toDigit (humidity [0]));
 		led.setDigit (0, 2, toDigit (humidity [1], dots));
-		led.setDigit (0, 1, toDigit ('r'));
-		led.setDigit (0, 0, 0x0);
+		led.setDigit (0, 1, toDigit (humidity [3]));
+		led.setDigit (0, 0, toDigit ('r'));
 	}
 	else
 	{
@@ -166,15 +161,10 @@ int main ()
 				break;
 		}
 
-		// collect data for gradient
-		datas.push_back (data);
-		if (datas.size () > maxDataSize)
-			datas.pop_front ();
-
 		// show
-		showData (led, data, datas, true /*dots*/);
+		showData (led, data, false /*no dots*/);
 		delay (250 /*ms*/);
-		showData (led, data, datas, false /*no dots*/);
+		showData (led, data, true /*dots*/);
 	}
 
   led.clearDisplay(0);
