@@ -29,15 +29,15 @@ To run the built executable as system daemon the files in the *scripts* folder h
 * `bpi_temp7` goes to `/etc/init.d`  
 * `bpi_temp7.service` goes to `/etc/systemd/system`  
 
-To publish the new service in the system do a:
+To publish the new service in the system do a:  
 `systemctl daemon-reload`  
 
-And to start the service on system startup do a:
+And to start the service on system startup do a:  
 `systemctl enable bpi_temp7.service`  
 
-With scripts installed you also can start-stop the executable: 
-* ´service bpi_temp7 start`
-* ´service bpi_temp7 stop`
+With scripts installed you also can start-stop the executable:  
+* `service bpi_temp7 start`
+* `service bpi_temp7 stop`
 
 # References
 
